@@ -20,13 +20,7 @@ android {
     }
     signingConfigs{
         staging.initWith(signingConfigs.debug)
-        release {
-            storeFile file('C:\\Users\\Lenovo\\newKeyStore.jks')
-            storePassword "ahmed123"
-            keyAlias "key0"
-            keyPassword "ahmed123"
-        }
-        debug {
+        myConfig{
             storeFile file('C:\\Users\\Lenovo\\newKeyStore.jks')
             storePassword "ahmed123"
             keyAlias "key0"
@@ -37,7 +31,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.myConfig
+        }
+        debug {
+            signingConfig signingConfigs.myConfig
         }
     }
     compileOptions {

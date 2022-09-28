@@ -37,7 +37,7 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
     private lateinit var binding: FragmentSelectLocationBinding
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    var lastLocation: Location? = null
+    private var lastLocation: Location? = null
 
     companion object {
         private const val REQUEST_LOCATION_PERMISSION = 1
