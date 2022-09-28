@@ -1,16 +1,31 @@
 package com.udacity.project4
 
 import android.app.Application
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import androidx.test.espresso.Espresso
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.IdlingRegistry
+import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import com.udacity.project4.locationreminders.ReminderDescriptionActivity
+import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
+import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
+import com.udacity.project4.util.DataBindingIdlingResource
+import com.udacity.project4.util.monitorActivity
 import kotlinx.coroutines.runBlocking
+import org.hamcrest.CoreMatchers.containsString
+import org.junit.After
 import org.junit.Before
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
@@ -27,6 +42,8 @@ class RemindersActivityTest :
 
     private lateinit var repository: ReminderDataSource
     private lateinit var appContext: Application
+
+    private val dataBindingIdlingResource = DataBindingIdlingResource()
 
     /**
      * As we use Koin as a Service Locator Library to develop our code, we'll also use Koin to test our code.
@@ -65,7 +82,94 @@ class RemindersActivityTest :
         }
     }
 
+    @Before
+    fun registerIdlingResource() {
+        IdlingRegistry.getInstance().register(dataBindingIdlingResource)
+    }
+
+    @After
+    fun unregisterIdlingResource() {
+        IdlingRegistry.getInstance().unregister(dataBindingIdlingResource)
+    }
+
 
 //    TODO: add End to End testing to the app
+
+    @Test
+    fun launchReminderDescriptionActivity(){
+        val reminder = ReminderDataItem(
+            title = "Reminder Title",
+            description = "Reminder desc",
+            location = "Reminder Location",
+            latitude = 30.30,
+            longitude = 33.30
+        )
+        val intent = ReminderDescriptionActivity.newIntent(getApplicationContext(),reminder)
+        val activityScenario = ActivityScenario.launch<ReminderDescriptionActivity>(intent)
+
+        onView(withId(R.id.reminder_title_value)).check(matches(withText(
+            containsString(reminder.title)
+        )))
+
+        onView(withId(R.id.reminder_description_value)).check(matches(withText(
+            containsString(reminder.description)
+        )))
+
+        onView(withId(R.id.reminder_location_value)).check(matches(withText(
+            containsString(reminder.location)
+        )))
+
+       activityScenario.close()
+    }
+
+
+    @Test
+    fun createReminder_Successfully(){
+        val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+
+        val saveReminderViewModel: SaveReminderViewModel = get()
+        saveReminderViewModel.reminderSelectedLocationStr.postValue("Cairo")
+        saveReminderViewModel.latitude.postValue(30.30)
+        saveReminderViewModel.longitude.postValue(31.30)
+
+        onView(withId(R.id.addReminderFAB)).perform(click())
+        onView(withId(R.id.reminderTitle)).perform(typeText("EGY"))
+        onView(withId(R.id.reminderDescription)).perform(typeText("Egypt"))
+
+        Espresso.closeSoftKeyboard()
+
+        onView(withId(R.id.saveReminder)).perform(click())
+
+        onView(withText("Egypt")).check(matches(isDisplayed()))
+
+        activityScenario.close()
+    }
+
+    @Test
+    fun createReminderWithMissingData(){
+        val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+
+        val saveReminderViewModel: SaveReminderViewModel = get()
+        saveReminderViewModel.reminderSelectedLocationStr.postValue("Cairo")
+        saveReminderViewModel.latitude.postValue(30.30)
+        saveReminderViewModel.longitude.postValue(31.30)
+
+        onView(withId(R.id.addReminderFAB)).perform(click())
+        onView(withId(R.id.reminderDescription)).perform(typeText("Egypt"))
+
+        Espresso.closeSoftKeyboard()
+
+        onView(withId(R.id.saveReminder)).perform(click())
+
+        onView(withId(com.google.android.material.R.id.snackbar_text)).check(
+            matches(withText(appContext.getString(R.string.err_enter_title))
+            ))
+
+        activityScenario.close()
+
+
+    }
 
 }

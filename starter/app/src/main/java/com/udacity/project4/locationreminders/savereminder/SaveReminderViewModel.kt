@@ -11,6 +11,7 @@ import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import kotlinx.coroutines.launch
+import java.util.*
 
 class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSource) :
     BaseViewModel(app) {
@@ -20,6 +21,8 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
     val selectedPOI = MutableLiveData<PointOfInterest>()
     val latitude = MutableLiveData<Double>()
     val longitude = MutableLiveData<Double>()
+
+    var validData = MutableLiveData<Boolean>()
 
     /**
      * Clear the live data objects to start fresh next time the view model gets called
@@ -39,6 +42,7 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
     fun validateAndSaveReminder(reminderData: ReminderDataItem) {
         if (validateEnteredData(reminderData)) {
             saveReminder(reminderData)
+            validData.value = true
         }
     }
 
@@ -67,7 +71,7 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
     /**
      * Validate the entered data and show error to the user if there's any invalid data
      */
-    fun validateEnteredData(reminderData: ReminderDataItem): Boolean {
+    private fun validateEnteredData(reminderData: ReminderDataItem): Boolean {
         if (reminderData.title.isNullOrEmpty()) {
             showSnackBarInt.value = R.string.err_enter_title
             return false
@@ -78,5 +82,17 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
             return false
         }
         return true
+    }
+
+    //
+    fun updateLocation(pointOfInterest: PointOfInterest){
+        selectedPOI.value = pointOfInterest
+        latitude.value = pointOfInterest.latLng.latitude
+        longitude.value = pointOfInterest.latLng.longitude
+        reminderSelectedLocationStr.value = String.format(
+            Locale.getDefault(),
+            "${pointOfInterest.name}\nLat: %1$.3f\nLng:%2$.3f",
+            latitude.value,longitude.value
+        )
     }
 }

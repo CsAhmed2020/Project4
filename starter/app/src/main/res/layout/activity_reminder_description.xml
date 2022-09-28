@@ -10,24 +10,105 @@
             type="com.udacity.project4.locationreminders.reminderslist.ReminderDataItem" />
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical"
         tools:context=".locationreminders.ReminderDescriptionActivity">
         <!--TODO: add the design of the reminder details-->
 
         <TextView
+            android:id="@+id/reminder_headline"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Reminder Details"
+            android:text="@string/reminder_details"
             android:textSize="@dimen/text_size_large"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:textColor="@color/black"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-    </LinearLayout>
+        <TextView
+            android:id="@+id/reminder_title_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/reminder_title"
+            android:textSize="@dimen/text_size_medium"
+            android:textColor="@color/black"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/reminder_headline"
+            android:layout_margin="@dimen/tv_margin"
+            />
+
+        <TextView
+            android:id="@+id/reminder_title_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{reminderDataItem.title}"
+            android:textSize="@dimen/text_size_medium"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/reminder_headline"
+            android:layout_margin="@dimen/tv_margin"
+            />
+
+        <TextView
+            android:id="@+id/reminder_description_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/reminder_desc"
+            android:textSize="@dimen/text_size_medium"
+            android:textColor="@color/black"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/reminder_title_txt"
+            android:layout_margin="@dimen/tv_margin"
+            />
+
+        <TextView
+            android:id="@+id/reminder_description_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{reminderDataItem.description}"
+            android:textSize="@dimen/text_size_medium"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/reminder_title_value"
+            android:layout_margin="@dimen/tv_margin"
+            />
+
+        <TextView
+            android:id="@+id/reminder_location_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/reminder_location"
+            android:textSize="@dimen/text_size_medium"
+            android:textColor="@color/black"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/reminder_description_txt"
+            android:layout_margin="@dimen/tv_margin"
+            />
+
+        <TextView
+            android:id="@+id/reminder_location_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{reminderDataItem.location}"
+            android:textSize="@dimen/text_size_medium"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/reminder_description_value"
+            android:layout_margin="@dimen/tv_margin"
+            />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/done"
+            android:id="@+id/button_done"
+            android:layout_marginHorizontal="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -7,7 +7,7 @@ apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion rootProject.compileSdkVersion
-    buildToolsVersion "29.0.2"
+    buildToolsVersion "29.0.3"
 
     defaultConfig {
         applicationId "com.udacity.project4"
@@ -16,14 +16,35 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+    }
+    signingConfigs{
+        staging.initWith(signingConfigs.debug)
+        release {
+            storeFile file('C:\\Users\\Lenovo\\newKeyStore.jks')
+            storePassword "ahmed123"
+            keyAlias "key0"
+            keyPassword "ahmed123"
+        }
+        debug {
+            storeFile file('C:\\Users\\Lenovo\\newKeyStore.jks')
+            storePassword "ahmed123"
+            keyAlias "key0"
+            keyPassword "ahmed123"
+        }
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
-    kotlinOptions {
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+        kotlinOptions {
         jvmTarget = "1.8"
     }
     testOptions.unitTests {
@@ -58,6 +79,7 @@ dependencies {
     //Navigation dependencies
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-rc1'
+    implementation 'com.google.firebase:firebase-auth:21.0.8'
     kapt "androidx.lifecycle:lifecycle-compiler:$archLifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-extensions:$archLifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$archLifecycleVersion"
@@ -66,6 +88,8 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$navigationVersion"
     implementation "androidx.test.espresso:espresso-idling-resource:$espressoVersion"
+
+    implementation 'com.firebaseui:firebase-ui-auth:8.0.1'
 
     //Room dependencies
     implementation "androidx.room:room-ktx:$roomVersion"
@@ -116,7 +140,7 @@ dependencies {
     androidTestImplementation "com.linkedin.dexmaker:dexmaker-mockito:$dexMakerVersion"
     androidTestImplementation('org.koin:koin-test:2.0.1') { exclude group: 'org.mockito' }
 
-
+    implementation 'com.firebaseui:firebase-ui-auth:5.0.0'
 
     //Maps & Geofencing
     implementation "com.google.android.gms:play-services-location:$playServicesVersion"

@@ -4,6 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
+import android.graphics.Color
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.TaskStackBuilder
@@ -13,6 +14,7 @@ import com.udacity.project4.locationreminders.ReminderDescriptionActivity
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 
 private const val NOTIFICATION_CHANNEL_ID = BuildConfig.APPLICATION_ID + ".channel"
+val CHANNEL_ID = "geofencingChannel"
 
 fun sendNotification(context: Context, reminderDataItem: ReminderDataItem) {
     val notificationManager = context
@@ -42,7 +44,7 @@ fun sendNotification(context: Context, reminderDataItem: ReminderDataItem) {
 
 //    build the notification object with the data to be shown
     val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
-        .setSmallIcon(R.mipmap.ic_launcher)
+        .setSmallIcon(R.drawable.icons_google_maps)
         .setContentTitle(reminderDataItem.title)
         .setContentText(reminderDataItem.location)
         .setContentIntent(notificationPendingIntent)
@@ -51,5 +53,29 @@ fun sendNotification(context: Context, reminderDataItem: ReminderDataItem) {
 
     notificationManager.notify(getUniqueId(), notification)
 }
+
+fun createChannel(context: Context) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+        val notificationChannel = NotificationChannel(
+            CHANNEL_ID,
+            context.getString(R.string.channel_name),
+
+            NotificationManager.IMPORTANCE_HIGH
+        )
+            .apply {
+                setShowBadge(false)
+            }
+
+        notificationChannel.enableLights(true)
+        notificationChannel.lightColor = Color.RED
+        notificationChannel.enableVibration(true)
+        notificationChannel.description = context.getString(R.string.notification_channel_description)
+
+        val notificationManager = context.getSystemService(NotificationManager::class.java)
+        notificationManager.createNotificationChannel(notificationChannel)
+    }
+}
+
 
 private fun getUniqueId() = ((System.currentTimeMillis() % 10000).toInt())
