@@ -2,7 +2,6 @@ package com.udacity.project4.locationreminders.savereminder
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4

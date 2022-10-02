@@ -1,16 +1,21 @@
 package com.udacity.project4
 
 import android.app.Application
+import android.view.View
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
+import androidx.test.espresso.UiController
+import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.RootMatchers.withDecorView
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import com.google.android.material.internal.ContextUtils.getActivity
 import com.udacity.project4.locationreminders.ReminderDescriptionActivity
 import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.data.ReminderDataSource
@@ -20,9 +25,14 @@ import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.util.DataBindingIdlingResource
+import com.udacity.project4.utils.EspressoIdlingResource
 import com.udacity.project4.util.monitorActivity
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
-import org.hamcrest.CoreMatchers.containsString
+import kotlinx.coroutines.test.runBlockingTest
+import org.hamcrest.CoreMatchers.*
+import org.hamcrest.Matcher
+import org.hamcrest.core.Is.`is`
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -34,6 +44,7 @@ import org.koin.dsl.module
 import org.koin.test.AutoCloseKoinTest
 import org.koin.test.get
 
+
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 //END TO END test to black box test the app
@@ -44,6 +55,7 @@ class RemindersActivityTest :
     private lateinit var appContext: Application
 
     private val dataBindingIdlingResource = DataBindingIdlingResource()
+
 
     /**
      * As we use Koin as a Service Locator Library to develop our code, we'll also use Koin to test our code.
@@ -85,11 +97,14 @@ class RemindersActivityTest :
     @Before
     fun registerIdlingResource() {
         IdlingRegistry.getInstance().register(dataBindingIdlingResource)
+        IdlingRegistry.getInstance().register(EspressoIdlingResource.countingIdlingResource)
+
     }
 
     @After
     fun unregisterIdlingResource() {
         IdlingRegistry.getInstance().unregister(dataBindingIdlingResource)
+        IdlingRegistry.getInstance().unregister(EspressoIdlingResource.countingIdlingResource)
     }
 
 
@@ -106,6 +121,7 @@ class RemindersActivityTest :
         )
         val intent = ReminderDescriptionActivity.newIntent(getApplicationContext(),reminder)
         val activityScenario = ActivityScenario.launch<ReminderDescriptionActivity>(intent)
+        dataBindingIdlingResource.monitorActivity(activityScenario)
 
         onView(withId(R.id.reminder_title_value)).check(matches(withText(
             containsString(reminder.title)
@@ -124,7 +140,7 @@ class RemindersActivityTest :
 
 
     @Test
-    fun createReminder_Successfully(){
+    fun createReminder_Successfully() {
         val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(activityScenario)
 
@@ -138,6 +154,7 @@ class RemindersActivityTest :
         onView(withId(R.id.reminderDescription)).perform(typeText("Egypt"))
 
         Espresso.closeSoftKeyboard()
+        closeSoftKeyboard()
 
         onView(withId(R.id.saveReminder)).perform(click())
 
@@ -169,7 +186,34 @@ class RemindersActivityTest :
 
         activityScenario.close()
 
+    }
+
+    @Test
+    fun saveReminder_showToast(){
+        val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+
+        val saveReminderViewModel: SaveReminderViewModel = get()
+        saveReminderViewModel.reminderSelectedLocationStr.postValue("Cairo")
+        saveReminderViewModel.latitude.postValue(30.30)
+        saveReminderViewModel.longitude.postValue(31.30)
+
+        onView(withId(R.id.addReminderFAB)).perform(click())
+        onView(withId(R.id.reminderTitle)).perform(typeText("EGY"))
+        onView(withId(R.id.reminderDescription)).perform(typeText("Egypt"))
+
+        Espresso.closeSoftKeyboard()
+
+        onView(withId(R.id.saveReminder)).perform(click())
+
+        // check successfully show toast
+        onView(withText(R.string.reminder_saved))
+            .inRoot(withDecorView(not(`is`(getActivity(appContext)?.window?.decorView))))
+            .check(matches(isDisplayed()))
+
+        activityScenario.close()
 
     }
+
 
 }

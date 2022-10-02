@@ -8,13 +8,15 @@ class FakeDataSource(val dataSource: MutableList<ReminderDTO>) : ReminderDataSou
 
 //    TODO: Create a fake data source to act as a double to the real data source
 
-    var resultSuccess:Boolean = true
+    var shouldReturnError:Boolean = false
+
+    private lateinit var myReminder: ReminderDTO
 
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
-        return if (resultSuccess)
-            Result.Success(dataSource)
-        else
+        return if (shouldReturnError)
             Result.Error("Not Available reminders")
+        else
+            Result.Success(dataSource)
     }
 
 
@@ -23,11 +25,14 @@ class FakeDataSource(val dataSource: MutableList<ReminderDTO>) : ReminderDataSou
     }
 
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
-        for (reminder in dataSource){
-            if (reminder.id == id)
-                return Result.Success(reminder)
-        }
-        return Result.Error("Reminder Not Found")
+        if (shouldReturnError)
+            return Result.Error("Reminder Not Found")
+        else
+            for (reminder in dataSource)
+                if (reminder.id == id)
+                    myReminder = reminder
+            return Result.Success(myReminder)
+
     }
 
     override suspend fun deleteAllReminders() {

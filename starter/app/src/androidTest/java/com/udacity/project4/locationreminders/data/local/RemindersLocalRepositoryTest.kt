@@ -73,6 +73,15 @@ class RemindersLocalRepositoryTest {
         assertThat(remindersFromRepository, `is`(emptyList()))
     }
 
+    @Test
+    fun getReminder_returnNotFound()= runBlocking{
+        repository.saveReminder(reminder)
+        repository.deleteAllReminders()
+        val remindersFromRepository = (repository.getReminder(reminder.id) as Result.Error).message
+        assertThat(remindersFromRepository, `is`("Reminder not found!"))
+
+    }
+
     @After
     fun closeDatabase(){
         database.close()

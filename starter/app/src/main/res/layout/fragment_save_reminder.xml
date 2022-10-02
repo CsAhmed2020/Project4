@@ -31,7 +31,6 @@
             android:layout_height="wrap_content"
             android:gravity="start"
             android:hint="@string/reminder_desc"
-            android:lines="10"
             android:text="@={viewModel.reminderDescription}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

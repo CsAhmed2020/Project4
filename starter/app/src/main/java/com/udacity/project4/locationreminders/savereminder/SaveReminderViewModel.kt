@@ -1,8 +1,10 @@
 package com.udacity.project4.locationreminders.savereminder
 
 import android.app.Application
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.PointOfInterest
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseViewModel
@@ -15,6 +17,7 @@ import java.util.*
 
 class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSource) :
     BaseViewModel(app) {
+
     val reminderTitle = MutableLiveData<String>()
     val reminderDescription = MutableLiveData<String>()
     val reminderSelectedLocationStr = MutableLiveData<String>()
@@ -22,7 +25,6 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
     val latitude = MutableLiveData<Double>()
     val longitude = MutableLiveData<Double>()
 
-    var validData = MutableLiveData<Boolean>()
 
     /**
      * Clear the live data objects to start fresh next time the view model gets called
@@ -42,7 +44,6 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
     fun validateAndSaveReminder(reminderData: ReminderDataItem) {
         if (validateEnteredData(reminderData)) {
             saveReminder(reminderData)
-            validData.value = true
         }
     }
 
@@ -71,7 +72,7 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
     /**
      * Validate the entered data and show error to the user if there's any invalid data
      */
-    private fun validateEnteredData(reminderData: ReminderDataItem): Boolean {
+     fun validateEnteredData(reminderData: ReminderDataItem): Boolean {
         if (reminderData.title.isNullOrEmpty()) {
             showSnackBarInt.value = R.string.err_enter_title
             return false
@@ -93,6 +94,16 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
             Locale.getDefault(),
             "${pointOfInterest.name}\nLat: %1$.3f\nLng:%2$.3f",
             latitude.value,longitude.value
+        )
+    }
+
+    fun setRandomLocation(locationMarker: Marker){
+        latitude.value = locationMarker.position.latitude
+        longitude.value = locationMarker.position.longitude
+        reminderSelectedLocationStr.value = String.format(
+            Locale.getDefault(),
+            "Random Location\nLat: %1$.2f\nLng: %2$.2f",
+            latitude.value , longitude.value
         )
     }
 }
