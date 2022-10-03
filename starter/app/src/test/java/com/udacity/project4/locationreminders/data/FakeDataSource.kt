@@ -4,39 +4,44 @@ import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.dto.Result
 
 //Use FakeDataSource that acts as a test double to the LocalDataSource
-class FakeDataSource(val dataSource: MutableList<ReminderDTO>) : ReminderDataSource {
+class FakeDataSource(val dataSource: MutableList<ReminderDTO>? = mutableListOf()) : ReminderDataSource {
 
 //    TODO: Create a fake data source to act as a double to the real data source
 
     var shouldReturnError:Boolean = false
 
-    private lateinit var myReminder: ReminderDTO
-
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
-        return if (shouldReturnError)
-            Result.Error("Not Available reminders")
-        else
-            Result.Success(dataSource)
+         if (shouldReturnError) {
+            return Result.Error("No reminders Exception")
+        }else{
+            dataSource?.let { return Result.Success(ArrayList(it)) }
+            return Result.Error(Exception("Not Available reminders").toString())
+        }
+
     }
 
 
     override suspend fun saveReminder(reminder: ReminderDTO) {
-        dataSource.add(reminder)
+        dataSource?.add(reminder)
     }
 
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
-        if (shouldReturnError)
-            return Result.Error("Reminder Not Found")
-        else
-            for (reminder in dataSource)
-                if (reminder.id == id)
-                    myReminder = reminder
-            return Result.Success(myReminder)
+        if (shouldReturnError) {
+            return Result.Error("Reminder not found Exception")
+        }
+        else{
+            dataSource?.filter {
+                it.id == id
+            }?.let {
+                return Result.Success(it.first())
+            }
+            return Result.Error("Reminder not found!")
+        }
 
     }
 
     override suspend fun deleteAllReminders() {
-        dataSource.clear()
+        dataSource?.clear()
     }
 
 
