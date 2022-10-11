@@ -91,7 +91,7 @@ class RemindersListViewModelTest {
     fun loadReminders_checkErrorState(){
         fakeDataSource.shouldReturnError = true
         remindersListViewModel.loadReminders()
-        assertThat(remindersListViewModel.showSnackBar.getOrAwaitValue(),`is`("Not Available reminders"))
+        assertThat(remindersListViewModel.showSnackBar.getOrAwaitValue(),`is`("get reminders Error Exception"))
     }
 
 }
